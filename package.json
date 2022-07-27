@@ -1,0 +1,22 @@
+{
+  "name": "simple-dapp",
+  "version": "1.0.0",
+  "description": "Creating my first dapp with basic functionalities",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/filippo-mancinelli/simple-dapp.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/filippo-mancinelli/simple-dapp/issues"
+  },
+  "homepage": "https://github.com/filippo-mancinelli/simple-dapp#readme",
+  "dependencies": {
+    "web3": "^1.7.4"
+  }
+}
