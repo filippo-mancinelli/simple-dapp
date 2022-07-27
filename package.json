@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/filippo-mancinelli/simple-dapp#readme",
   "dependencies": {
+    "jquery": "^3.6.0",
     "web3": "^1.7.4"
   }
 }
