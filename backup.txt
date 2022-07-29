@@ -16,30 +16,28 @@
     <div>
         <h1>Ethereum Secret Messenger</h1>
         <hr>
-
         <label for="message">This site writes a secret message to the Ethereum
             blockchain!</label>
         <input id="userInput" type="text">
 
         <button id="setMessageButton">Set secret message</button>
+        <button class="enableEthereumButton">Connect to Metamask</button>
+
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
-
-    <script>
-
+    <script  src="https://code.jquery.com/jquery-3.6.0.slim.js">        
         // Connect a the web3 provider
         if (typeof web3 !== 'undefined') {
             web3 = new Web3(web3.currentProvider);
         } else {
-            web3 = new Web3(new Web3.providers.HttpProvider("https://rinkeby.infura.io/v3/e595556a6f02441e809bc933758ab52a"));
+            web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:7545"));
         }
 
         // Set a default account
         web3.eth.defaultAccount = web3.eth.accounts[0];
 
-        // Get the contract address
-        var RemixContract = new web3.eth.Contract([
+        // Get the contract ABI
+        var RemixContract = new web3.eth.contract([
 	{
 		"inputs": [
 			{
@@ -66,16 +64,23 @@
 		"stateMutability": "view",
 		"type": "function"
 	}
-], '0xD69642a28c0Cdda0fd839055B0535aa032d7a906');
+], '0x7fDD09F1fe440f70b24761Ba592E5a2937bFA651');
+
+        console.log(RemixContract);
+
+        //detect ethereum provider
+        import detectEthereumProvider from '@metamask/detect-provider';
+        const provider = await detectEthereumProvider();
+        console.log(window.ethereum);
         
         $("#setMessageButton").click(function () {
-            address = '0x0F2Fb537E3aeE17D01355Eb1307714B3E1E91737';
-            message = $("#userInput").val();
-            RemixContract.methods.setMessage(message).send(
-                {from: address},
-                function (error, transactionHash) {console.log}
-            );
-            console.log('Sending this message: ' + message + ' to this contract: ' + RemixContract._address + ' from this account: ' + address);
+            message = $('userInput').val();
+            RemixContract.setMessage(message, (err, res) => {message = res});
+            console.log($("#userInput").val())
+        });
+
+        $("#enableEthereumButton").click(function () {
+            ethereum.request({ method: 'eth_requestAccounts' });
         });
 
     </script>
