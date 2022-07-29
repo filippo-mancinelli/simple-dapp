@@ -21,7 +21,17 @@
             blockchain!</label>
         <input id="userInput" type="text">
 
-        <button id="setMessageButton">Set secret message</button>
+        <button id="setMessageMetamask">Send message with Metamask </button>
+        <button id="showFormSignature">Send message by signing manually the transaction</button>
+       
+        <form id="userInputSignature" style="display: none">
+            <label for="publicKey">Your wallet address:</label><br>
+            <input type="text" id="publicKey" name="publicKey"><br>
+            <label for="privateKey">Your private key:</label><br>
+            <input type="text" id = privateKey name="privateKey"><br>
+            <button id="setMessageSignature">Sign and send transaction</button>
+        </form>
+
     </div>
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
@@ -68,7 +78,7 @@
 	}
 ], '0xD69642a28c0Cdda0fd839055B0535aa032d7a906');
         
-        $("#setMessageButton").click(function () {
+        $("#setMessageMetamask").click(function () {
             address = '0x0F2Fb537E3aeE17D01355Eb1307714B3E1E91737';
             message = $("#userInput").val();
             RemixContract.methods.setMessage(message).send(
@@ -78,6 +88,13 @@
             console.log('Sending this message: ' + message + ' to this contract: ' + RemixContract._address + ' from this account: ' + address);
         });
 
+        $("#showFormSignature").click(function(){
+            document.getElementById("userInputSignature").style.display = "block";
+        })
+
+        $("#SetMessageSignature").click(function(publicKey, privateKey){
+            
+        })
     </script>
 </body>
 
