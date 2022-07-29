@@ -92,7 +92,20 @@
             document.getElementById("userInputSignature").style.display = "block";
         })
 
-        $("#SetMessageSignature").click(function(publicKey, privateKey){
+        $("#SetMessageSignature").click(function(){
+            EthereumTransaction = require('ethereumjs-tx').Transaction;
+            rawTransaction = {
+                nonce: null, //?TODO
+                to: null, //?TODO
+                gasPrice: web3.eth.getGasPrice(function(e, r) {return r}),
+                gasLimit: 30000,
+                value: 0,
+                data
+            }
+            
+            publicKey = $("#publicKey").val();
+            privateKey = $("#privateKey").val();
+
             
         })
     </script>
