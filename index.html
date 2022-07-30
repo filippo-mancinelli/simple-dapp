@@ -42,9 +42,22 @@
         if (typeof web3 !== 'undefined') {
             web3 = new Web3(web3.currentProvider);
         } else {
-            web3 = new Web3(new Web3.providers.HttpProvider("https://rinkeby.infura.io/v3/e595556a6f02441e809bc933758ab52a"));
-        }
+            async () => {web3 = await getWeb3();}
+            //web3 = new Web3(new Web3.providers.HttpProvider("https://rinkeby.infura.io/v3/e595556a6f02441e809bc933758ab52a"));            
+        };
+        
+        const getWeb3 = async () => {
+            return new Promise(async(resolve, reject) => {
+                const web3 = new Web3(window.ethereum)
 
+                try{
+                    await window.ethereum.request({method: "eth_requestAccounts"});
+                    resolve(web3);
+                }catch(error){
+                    reject(error);
+                }
+            })
+        }
         // Set a default account
         web3.eth.defaultAccount = web3.eth.accounts[0];
 
@@ -92,12 +105,12 @@
             document.getElementById("userInputSignature").style.display = "block";
         })
 
-        $("#SetMessageSignature").click(function(){
+        $("#SetMessageSignature").click(async function(){
             EthereumTransaction = require('ethereumjs-tx').Transaction;
             rawTransaction = {
                 nonce: null, //?TODO
                 to: null, //?TODO
-                gasPrice: web3.eth.getGasPrice(function(e, r) {return r}),
+                gasPrice: await web3.eth.getGasPrice(),
                 gasLimit: 30000,
                 value: 0,
                 data
@@ -105,8 +118,11 @@
             
             publicKey = $("#publicKey").val();
             privateKey = $("#privateKey").val();
+            privateKeyHex = Buffer.from(privateKey, 'hex');
+            rawTransaction.sign(privateKeyHex);
 
-            
+            var serializedTransaction = transaction.serialize();
+            web3.eth.sendSignedTransaction(serializedTransaction);
         })
     </script>
 </body>
