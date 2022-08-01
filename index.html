@@ -8,6 +8,7 @@
     <title>Deploy a Remix Contract</title>
 
     <link rel="stylesheet" type="text/css" href="main.css">
+    <link rel="shortcut icon" href="assets/images/favicon.ico">
 
     <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js/dist/web3.min.js"></script>
 </head>
@@ -21,6 +22,7 @@
             blockchain!</label>
         <input id="userInput" type="text">
 
+        <button id="connect">Connect</button>
         <button id="setMessageMetamask">Send message with Metamask </button>
         <button id="showFormSignature">Send message by signing manually the transaction</button>
        
@@ -35,62 +37,118 @@
     </div>
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://unpkg.com/@metamask/detect-provider/dist/detect-provider.min.js"></script>
 
     <script>
-
-        // Connect a the web3 provider
-        if (typeof web3 !== 'undefined') {
-            web3 = new Web3(web3.currentProvider);
-        } else {
-            async () => {web3 = await getWeb3();}
-            //web3 = new Web3(new Web3.providers.HttpProvider("https://rinkeby.infura.io/v3/e595556a6f02441e809bc933758ab52a"));            
-        };
-        
-        const getWeb3 = async () => {
-            return new Promise(async(resolve, reject) => {
-                const web3 = new Web3(window.ethereum)
-
-                try{
-                    await window.ethereum.request({method: "eth_requestAccounts"});
-                    resolve(web3);
-                }catch(error){
-                    reject(error);
-                }
-            })
+        // Create web3 object if provider already exists, otherwise to infura
+        window.addEventListener('load', async () => {
+            web3 = new Web3(Web3.givenProvider || "https://rinkeby.infura.io/v3/e595556a6f02441e809bc933758ab52a");
+        });
+ 
+        // Function to retrieve an array of accounts connected to the website
+        async function getAccountsArray(){
+            return await ethereum.request({method: 'eth_accounts'});
         }
-        // Set a default account
-        web3.eth.defaultAccount = web3.eth.accounts[0];
 
-        // Get the contract address
-        var RemixContract = new web3.eth.Contract([
-	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "x",
-				"type": "string"
-			}
-		],
-		"name": "setMessage",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "getMessage",
-		"outputs": [
-			{
-				"internalType": "string",
-				"name": "",
-				"type": "string"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	}
-], '0xD69642a28c0Cdda0fd839055B0535aa032d7a906');
+//         // Get the contract address
+//       var RemixContract = new web3.eth.Contract([
+// 	{
+// 		"inputs": [
+// 			{
+// 				"internalType": "string",
+// 				"name": "x",
+// 				"type": "string"
+// 			}
+// 		],
+// 		"name": "setMessage",
+// 		"outputs": [],
+// 		"stateMutability": "nonpayable",
+// 		"type": "function"
+// 	},
+// 	{
+// 		"inputs": [],
+// 		"name": "getMessage",
+// 		"outputs": [
+// 			{
+// 				"internalType": "string",
+// 				"name": "",
+// 				"type": "string"
+// 			}
+// 		],
+// 		"stateMutability": "view",
+// 		"type": "function"
+// 	}
+// ], '0xD69642a28c0Cdda0fd839055B0535aa032d7a906');
         
+
+        async function addChain(){
+        //this is the chain interface to be switched on, it's used as a parameter on the wallet_addEthereumChain function            
+            let addEthereumChainParameter = {
+                chainId: '0x4',
+                chainName: 'Ethereum',
+                nativeCurrency: {
+                name: 'Ethereum',
+                symbol: 'ETH',
+                decimals: 18
+                },
+                rpcUrls: ['https://rinkeby.infura.io/v3/e595556a6f02441e809bc933758ab52a'],
+                blockExplorerUrls: ['https://rinkey.etherscan.io']
+                };
+
+            //prompt user's metamask to add the missing chain.
+            try {
+                await ethereum.request({
+                    method:'wallet_addEthereumChain',
+                    params: [addEthereumChainParameter]
+                });
+                connectChain();
+            }catch(addError){
+                console.log(addError.message);
+            }
+        }
+
+        async function switchChain(){
+            try{
+                await ethereum.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [{chainId: '0x4'}]
+                });
+                connectChain();
+            }catch(switchError) {
+                //error 4902 means that the chain has not been added.
+                if(switchError === 4902) {
+                    addChain();
+                }
+            }
+        }
+
+        async function connectChain(){
+            await ethereum
+            .request({method: 'eth_requestAccounts'})
+            .then(() => {
+                web3 = new Web3(window.ethereum)
+                console.log("Metamask connected!")
+            })
+            .catch((error) => {
+                if(error.code === 4001) {
+                    console.log("Please connect to MetaMask.") //UserRejectedRequest error
+                } else {
+                    console.log(error.message);
+                }
+            })            
+        }
+
+        $("#connect").click(async function() {
+            //first, check if current chain is valid, otherwise ask to switch chain and if necessary, to add the missing network needed.
+            if(window.ethereum.chainId === '0x4'){
+                connectChain();
+            } else { 
+                //Current chain not valid, proceed to ask to switch chain
+                switchChain();
+            }
+
+        });
+
         $("#setMessageMetamask").click(function () {
             address = '0x0F2Fb537E3aeE17D01355Eb1307714B3E1E91737';
             message = $("#userInput").val();
