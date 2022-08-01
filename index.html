@@ -24,23 +24,13 @@
 
         <button id="connect">Connect</button>
         <button id="setMessageMetamask">Send message with Metamask </button>
-        <button id="showFormSignature">Send message by signing manually the transaction</button>
-       
-        <form id="userInputSignature" style="display: none">
-            <label for="publicKey">Your wallet address:</label><br>
-            <input type="text" id="publicKey" name="publicKey"><br>
-            <label for="privateKey">Your private key:</label><br>
-            <input type="text" id = privateKey name="privateKey"><br>
-            <button id="setMessageSignature">Sign and send transaction</button>
-        </form>
-
     </div>
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://unpkg.com/@metamask/detect-provider/dist/detect-provider.min.js"></script>
 
     <script>
-        // Create web3 object if provider already exists, otherwise to infura
+        // Create web3 object if provider already exists, otherwise connect to infura
         window.addEventListener('load', async () => {
             web3 = new Web3(Web3.givenProvider || "https://rinkeby.infura.io/v3/e595556a6f02441e809bc933758ab52a");
         });
@@ -49,37 +39,6 @@
         async function getAccountsArray(){
             return await ethereum.request({method: 'eth_accounts'});
         }
-
-//         // Get the contract address
-//       var RemixContract = new web3.eth.Contract([
-// 	{
-// 		"inputs": [
-// 			{
-// 				"internalType": "string",
-// 				"name": "x",
-// 				"type": "string"
-// 			}
-// 		],
-// 		"name": "setMessage",
-// 		"outputs": [],
-// 		"stateMutability": "nonpayable",
-// 		"type": "function"
-// 	},
-// 	{
-// 		"inputs": [],
-// 		"name": "getMessage",
-// 		"outputs": [
-// 			{
-// 				"internalType": "string",
-// 				"name": "",
-// 				"type": "string"
-// 			}
-// 		],
-// 		"stateMutability": "view",
-// 		"type": "function"
-// 	}
-// ], '0xD69642a28c0Cdda0fd839055B0535aa032d7a906');
-        
 
         async function addChain(){
         //this is the chain interface to be switched on, it's used as a parameter on the wallet_addEthereumChain function            
@@ -146,7 +105,6 @@
                 //Current chain not valid, proceed to ask to switch chain
                 switchChain();
             }
-
         });
 
         $("#setMessageMetamask").click(function () {
@@ -158,30 +116,7 @@
             );
             console.log('Sending this message: ' + message + ' to this contract: ' + RemixContract._address + ' from this account: ' + address);
         });
-
-        $("#showFormSignature").click(function(){
-            document.getElementById("userInputSignature").style.display = "block";
-        })
-
-        $("#SetMessageSignature").click(async function(){
-            EthereumTransaction = require('ethereumjs-tx').Transaction;
-            rawTransaction = {
-                nonce: null, //?TODO
-                to: null, //?TODO
-                gasPrice: await web3.eth.getGasPrice(),
-                gasLimit: 30000,
-                value: 0,
-                data
-            }
-            
-            publicKey = $("#publicKey").val();
-            privateKey = $("#privateKey").val();
-            privateKeyHex = Buffer.from(privateKey, 'hex');
-            rawTransaction.sign(privateKeyHex);
-
-            var serializedTransaction = transaction.serialize();
-            web3.eth.sendSignedTransaction(serializedTransaction);
-        })
+        
     </script>
 </body>
 
